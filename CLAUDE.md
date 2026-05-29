@@ -44,7 +44,7 @@ LLM Guard, Envoy AI Gateway, GenAI OTel conventions, spinybacked-orbweaver)
 are new.
 
 Reuse source repo lives **locally only** at
-`~/repos/kubecon/2026_Kubecon_North_America_CNCF_Can_Your_Chatbot_Run_Kubectl/kubeauto-ai-day/`
+`~/repos/events/kubeauto-ai-day/`
 and is excluded from this repo via `.gitignore`. See `docs/KUBEAUTO-REUSE-MAP.md`
 for the per-file copy/adapt/extend/ignore map.
 

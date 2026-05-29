@@ -102,7 +102,7 @@ spread: several working sessions plus full rehearsals in Phase 8.
 ## 4. Reuse Strategy
 
 The kubeauto-ai-day tree lives on disk at
-`~/repos/kubecon/2026_Kubecon_North_America_CNCF_Can_Your_Chatbot_Run_Kubectl/kubeauto-ai-day/`
+`~/repos/events/kubeauto-ai-day/`
 and is **gitignored** here. Every session that needs to reuse a file reads
 it from that path directly.
 

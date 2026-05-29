@@ -33,7 +33,7 @@ Restart your shell and verify with `echo $DISPLAY`.
 ## Step 1 — Clone / pull the repo
 
 ```bash
-cd ~/repos/kubecon/2026_Kubecon_North_America_CNCF_Can_Your_Chatbot_Run_Kubectl
+cd ~/repos/events/Kubecon-NA-2026-Whitney-BurritoBot
 git pull origin main
 ```
 

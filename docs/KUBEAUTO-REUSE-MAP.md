@@ -3,9 +3,14 @@
 This is the per-file decision matrix for pulling material from the
 kubeauto-ai-day (EKS) source into the burritbot (GKE) repo. The source lives
 locally at
-`~/repos/kubecon/2026_Kubecon_North_America_CNCF_Can_Your_Chatbot_Run_Kubectl/kubeauto-ai-day/`
+`~/repos/events/kubeauto-ai-day/`
 and is **gitignored** here — nothing is vendored; every reuse is a fresh
 read + copy during the relevant phase session.
+
+The EKS reference was delivered as the KubeCon EU 2026 talk (2026-03-23,
+27/27 components, 59 live tests), so every manifest below has been
+verified against a real cluster. Adaptation is the work; greenfield
+authoring is not.
 
 **Naming conventions in this repo:**
 - Guardrails namespace is **`burritbot-net`** (not `guardrails`).
