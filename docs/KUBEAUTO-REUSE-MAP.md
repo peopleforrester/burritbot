@@ -3,7 +3,8 @@
 This is the per-file decision matrix for pulling material from the
 kubeauto-ai-day (EKS) source into the burritbot (GKE) repo. The source lives
 locally at
-`~/repos/events/kubeauto-ai-day/`
+`~/repos/_archive/events/kubeauto-ai-day/`
+(canonical public copy: https://github.com/peopleforrester/kubeauto-ai-day),
 and is **gitignored** here — nothing is vendored; every reuse is a fresh
 read + copy during the relevant phase session.
 

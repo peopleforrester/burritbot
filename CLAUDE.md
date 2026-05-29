@@ -44,8 +44,10 @@ LLM Guard, Envoy AI Gateway, GenAI OTel conventions, spinybacked-orbweaver)
 are new.
 
 Reuse source repo lives **locally only** at
-`~/repos/events/kubeauto-ai-day/`
-and is excluded from this repo via `.gitignore`. See `docs/KUBEAUTO-REUSE-MAP.md`
+`~/repos/_archive/events/kubeauto-ai-day/`
+and is excluded from this repo via `.gitignore`. The canonical public
+copy is on GitHub at https://github.com/peopleforrester/kubeauto-ai-day
+— treat the local clone as a convenience, not a dependency. See `docs/KUBEAUTO-REUSE-MAP.md`
 for the per-file copy/adapt/extend/ignore map.
 
 ## How To Work

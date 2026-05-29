@@ -102,7 +102,8 @@ spread: several working sessions plus full rehearsals in Phase 8.
 ## 4. Reuse Strategy
 
 The kubeauto-ai-day tree lives on disk at
-`~/repos/events/kubeauto-ai-day/`
+`~/repos/_archive/events/kubeauto-ai-day/`
+(canonical public copy: https://github.com/peopleforrester/kubeauto-ai-day),
 and is **gitignored** here. Every session that needs to reuse a file reads
 it from that path directly.
 
