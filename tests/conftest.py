@@ -35,6 +35,7 @@ EXPECTED_NAMESPACES = [
     "burritbot-unguarded",
     "burritbot-guarded",
     "audience",
+    "cert-manager",
 ]
 
 # Grafana demo credentials (base64 of admin:admin) for wget in test pods.

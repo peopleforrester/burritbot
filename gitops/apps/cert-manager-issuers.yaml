@@ -1,0 +1,37 @@
+# ABOUTME: ArgoCD Application for ClusterIssuers — Let's Encrypt staging + production.
+# ABOUTME: Depends on the cert-manager CRDs and webhook being live (wave 1 -> wave 2).
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager-issuers
+  namespace: argocd
+  annotations:
+    # Wave 2: depends on cert-manager (wave 1) for CRDs and admission webhook.
+    argocd.argoproj.io/sync-wave: "2"
+  labels:
+    burritbot.io/layer: the-web
+    app.kubernetes.io/part-of: burritbot
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/REPLACE_WITH_OWNER/burritbot-kubecon-2026.git
+    targetRevision: main
+    path: security/cert-manager
+    directory:
+      recurse: true
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cert-manager
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m

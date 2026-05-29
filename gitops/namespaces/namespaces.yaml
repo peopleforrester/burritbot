@@ -58,3 +58,11 @@ metadata:
   labels:
     burritbot.io/layer: application
     app.kubernetes.io/part-of: burritbot
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: cert-manager
+  labels:
+    burritbot.io/layer: the-web
+    app.kubernetes.io/part-of: burritbot

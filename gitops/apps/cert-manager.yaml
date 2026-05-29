@@ -1,0 +1,56 @@
+# ABOUTME: ArgoCD Application for cert-manager — TLS issuance via Helm chart.
+# ABOUTME: Adapted from kubeauto-ai-day (EKS) reference; pure Helm chart, zero AWS specifics.
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager
+  namespace: argocd
+  annotations:
+    # Wave 1: install CRDs + operator. cert-manager-issuers (wave 2) depends on this.
+    # Retry handles webhook registration timing (30-60s after install).
+    argocd.argoproj.io/sync-wave: "1"
+  labels:
+    burritbot.io/layer: the-web
+    app.kubernetes.io/part-of: burritbot
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://charts.jetstack.io
+    chart: cert-manager
+    targetRevision: "v1.19.3"
+    helm:
+      valuesObject:
+        crds:
+          enabled: true
+          keep: true
+        replicaCount: 1
+        webhook:
+          replicaCount: 1
+        cainjector:
+          replicaCount: 1
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 256Mi
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cert-manager
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
+      - ServerSideApply=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
