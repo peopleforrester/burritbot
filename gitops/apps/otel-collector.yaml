@@ -1,0 +1,152 @@
+# ABOUTME: ArgoCD Application for OTel Collector DaemonSet — The Eyes ingest pipeline.
+# ABOUTME: Adapted from kubeauto-ai-day (EKS) + EXTENDED with gen_ai.* attribute decoration.
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: otel-collector
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+  labels:
+    burritbot.io/layer: the-eyes
+    app.kubernetes.io/part-of: burritbot
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    chart: opentelemetry-collector
+    repoURL: https://open-telemetry.github.io/opentelemetry-helm-charts
+    targetRevision: "0.145.0"
+    helm:
+      valuesObject:
+        image:
+          repository: "otel/opentelemetry-collector-contrib"
+        mode: daemonset
+        presets:
+          kubernetesAttributes:
+            enabled: true
+        config:
+          receivers:
+            otlp:
+              protocols:
+                grpc:
+                  endpoint: 0.0.0.0:4317
+                http:
+                  endpoint: 0.0.0.0:4318
+          processors:
+            # memory_limiter MUST come first in every pipeline (collector OOM guard).
+            memory_limiter:
+              check_interval: 1s
+              limit_mib: 400
+              spike_limit_mib: 100
+            batch:
+              timeout: 5s
+              send_batch_size: 1024
+              send_batch_max_size: 2048
+            # gen_ai.* attribute decoration — keeps BurritBot spans compliant
+            # with the OTel GenAI semconv v1.37.0 (provider value gcp.vertex_ai).
+            # The Eyes layer's spinybacked-orbweaver agent scores spans against
+            # observability/otel-weaver/genai-semconv-registry.yaml.
+            attributes/genai:
+              actions:
+                - key: gen_ai.provider.name
+                  value: gcp.vertex_ai
+                  action: insert
+                - key: gen_ai.request.model
+                  from_attribute: llm.model_name
+                  action: upsert
+                - key: gen_ai.usage.input_tokens
+                  from_attribute: llm.usage.prompt_tokens
+                  action: upsert
+                - key: gen_ai.usage.output_tokens
+                  from_attribute: llm.usage.completion_tokens
+                  action: upsert
+            resource:
+              attributes:
+                - key: cluster.name
+                  value: burritbot
+                  action: upsert
+                - key: deployment.environment
+                  value: burritbot-demo
+                  action: insert
+          exporters:
+            prometheusremotewrite:
+              endpoint: http://prometheus-kube-prometheus-prometheus.monitoring.svc.cluster.local:9090/api/v1/write
+              tls:
+                insecure: true
+              resource_to_telemetry_conversion:
+                enabled: true
+            otlp/tempo:
+              endpoint: tempo.monitoring.svc.cluster.local:4317
+              tls:
+                insecure: true
+            debug:
+              verbosity: basic
+              sampling_initial: 5
+              sampling_thereafter: 200
+          service:
+            telemetry:
+              logs:
+                level: info
+              metrics:
+                address: 0.0.0.0:8888
+            pipelines:
+              metrics:
+                receivers:
+                  - otlp
+                processors:
+                  - memory_limiter
+                  - attributes/genai
+                  - resource
+                  - batch
+                exporters:
+                  - prometheusremotewrite
+                  - debug
+              traces:
+                receivers:
+                  - otlp
+                processors:
+                  - memory_limiter
+                  - attributes/genai
+                  - resource
+                  - batch
+                exporters:
+                  - otlp/tempo
+                  - debug
+        service:
+          enabled: true
+          type: ClusterIP
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+        ports:
+          otlp:
+            enabled: true
+            containerPort: 4317
+            servicePort: 4317
+            protocol: TCP
+          otlp-http:
+            enabled: true
+            containerPort: 4318
+            servicePort: 4318
+            protocol: TCP
+          metrics:
+            enabled: true
+            containerPort: 8888
+            servicePort: 8888
+            protocol: TCP
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
