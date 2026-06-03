@@ -1,0 +1,49 @@
+# ABOUTME: ArgoCD Application for Falcosidekick — fan-out for Falco alerts.
+# ABOUTME: Adapted from kubeauto-ai-day; chart is cloud-agnostic.
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: falcosidekick
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-2"
+  labels:
+    burritbot.io/layer: the-net
+    app.kubernetes.io/part-of: burritbot
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    chart: falcosidekick
+    repoURL: https://falcosecurity.github.io/charts
+    targetRevision: "0.12.1"
+    helm:
+      valuesObject:
+        config:
+          prometheus:
+            extralabels: ""
+        webui:
+          enabled: false
+        podAnnotations:
+          prometheus.io/scrape: "true"
+          prometheus.io/port: "2801"
+          prometheus.io/path: "/metrics"
+        replicaCount: 2
+        resources:
+          requests:
+            cpu: 50m
+            memory: 64Mi
+          limits:
+            cpu: 100m
+            memory: 128Mi
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: security
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false

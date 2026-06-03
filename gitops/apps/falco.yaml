@@ -1,0 +1,220 @@
+# ABOUTME: ArgoCD Application for Falco DaemonSet — runtime security via modern eBPF on GKE.
+# ABOUTME: Adapted from kubeauto-ai-day; EKS-aware rules rewritten for GKE; burritbot-the-net folded in.
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: falco
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-3"
+  labels:
+    burritbot.io/layer: the-net
+    app.kubernetes.io/part-of: burritbot
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    chart: falco
+    repoURL: https://falcosecurity.github.io/charts
+    targetRevision: "8.0.0"
+    helm:
+      valuesObject:
+        driver:
+          # modern_ebpf is the GKE-friendly path — no kernel headers required.
+          kind: modern_ebpf
+        tty: true
+        falcosidekick:
+          enabled: false
+          fullfqdn: falcosidekick.security.svc.cluster.local
+        falco:
+          http_output:
+            enabled: true
+            url: "http://falcosidekick.security.svc.cluster.local:2801"
+          json_output: true
+          log_stderr: true
+          log_syslog: false
+          priority: notice
+          rules_files:
+            - /etc/falco/falco_rules.yaml
+            - /etc/falco/falco_rules.local.yaml
+            - /etc/falco/rules.d
+        customRules:
+          # Generic container-hardening rules carried over from the EKS reference.
+          custom-rules.yaml: |
+            - list: allowed_outbound_ports
+              items: [53, 443, 6443, 8080, 8443, 9090, 4317, 4318]
+
+            - list: sensitive_file_paths
+              items:
+                - /etc/shadow
+                - /etc/kubernetes/pki
+                - /var/run/secrets/kubernetes.io/serviceaccount/token
+                - /root/.kube/config
+                - /root/.config/gcloud/application_default_credentials.json
+
+            - rule: Exec Into Pod Detected
+              desc: >
+                Detect when someone runs kubectl exec or equivalent to get a shell
+                in a running container.
+              condition: >
+                spawned_process and
+                container and
+                k8s.ns.name != "" and
+                proc.pname in (runc:[2:INIT], cri-o, containerd-shim) and
+                proc.name in (bash, sh, dash, zsh, csh, fish, tcsh)
+              output: >
+                Shell spawned in container
+                (user=%user.name pod=%k8s.pod.name ns=%k8s.ns.name
+                 container=%container.name shell=%proc.name parent=%proc.pname
+                 cmdline=%proc.cmdline image=%container.image.repository)
+              priority: WARNING
+              tags: [container, shell, mitre_execution]
+              source: syscall
+
+            - rule: Sensitive File Read in Container
+              desc: >
+                Detect when a process inside a container reads sensitive files
+                such as service account tokens, shadow files, or cloud credentials.
+              condition: >
+                open_read and
+                container and
+                fd.name pmatch (sensitive_file_paths) and
+                not proc.name in (kubelet, kube-proxy, coredns)
+              output: >
+                Sensitive file read in container
+                (user=%user.name file=%fd.name pod=%k8s.pod.name ns=%k8s.ns.name
+                 container=%container.name image=%container.image.repository
+                 cmdline=%proc.cmdline)
+              priority: CRITICAL
+              tags: [container, filesystem, mitre_credential_access]
+              source: syscall
+
+          # GKE-specific rules — replaces the EKS reference's eks-aware-rules.yaml.
+          # The IMDS IP 169.254.169.254 is shared between EC2 and GCE metadata
+          # services; the framing and tags are different.
+          gke-aware-rules.yaml: |
+            - rule: Container Accessing GCE Metadata
+              desc: >
+                Detect when a container tries to reach the GCE instance metadata
+                service (169.254.169.254). On GKE with Workload Identity Federation,
+                containers should authenticate via the projected SA token, never
+                via direct IMDS access.
+              condition: >
+                outbound and
+                container and
+                fd.sip = "169.254.169.254"
+              output: >
+                Container accessing GCE metadata service (IMDS)
+                (pod=%k8s.pod.name ns=%k8s.ns.name container=%container.name
+                 image=%container.image.repository cmdline=%proc.cmdline)
+              priority: CRITICAL
+              tags: [container, network, gcp, gke, mitre_credential_access]
+              source: syscall
+
+            - rule: Write Below Etc in Container
+              desc: >
+                Detect file writes under /etc inside a container. Legitimate
+                containers rarely modify /etc at runtime.
+              condition: >
+                evt.dir = < and
+                fd.name startswith /etc/ and
+                container and
+                not proc.name in (sed, tee) and
+                not k8s.ns.name in (kube-system, kyverno, argocd, monitoring, security)
+              output: >
+                Write below /etc in container
+                (user=%user.name file=%fd.name pod=%k8s.pod.name ns=%k8s.ns.name
+                 container=%container.name image=%container.image.repository)
+              priority: WARNING
+              tags: [container, filesystem, mitre_persistence, gke]
+              source: syscall
+
+          # burritbot-the-net rules — folded in from
+          # security/falco/rules/burritbot-the-net.yaml so the chart's customRules
+          # ConfigMap actually carries them. Standalone rule files are not picked
+          # up by the chart. Closes C19 from the senior review by ALSO defining
+          # the burritbot_net_ips list that these rules reference.
+          burritbot-the-net.yaml: |
+            - list: burritbot_guarded_namespaces
+              items:
+                - burritbot-guarded
+                - burritbot-net
+
+            # burritbot_net_ips is the set of ClusterIPs assigned to the
+            # burritbot-net gateway Services. Populate at apply time (or via a
+            # Service-watching sidecar) — the placeholder below is intentionally
+            # the loopback so the rule never fires against a real address until
+            # the operator sets it.
+            - list: burritbot_net_ips
+              items:
+                - "127.0.0.1"
+
+            - macro: burritbot_guarded_pod
+              condition: >
+                k8s.ns.name in (burritbot_guarded_namespaces)
+
+            - rule: Burritbot Guarded Pod Shell Spawned
+              desc: >
+                A shell was executed inside a guarded BurritBot or burritbot-net Pod.
+                These Pods are supposed to run a single bounded process and nothing
+                interactive.
+              condition: >
+                spawned_process and
+                burritbot_guarded_pod and
+                proc.name in (sh, bash, zsh, dash, busybox, ash)
+              output: >
+                Shell spawned in guarded burritbot pod
+                (ns=%k8s.ns.name pod=%k8s.pod.name container=%container.name
+                 proc=%proc.name cmdline=%proc.cmdline user=%user.name)
+              priority: CRITICAL
+              tags: [burritbot, the-net, guarded, shell]
+
+            - rule: Burritbot Guarded Pod Outbound To Non Burritbot Net
+              desc: >
+                A guarded BurritBot pod attempted an outbound TCP connection to
+                something other than the burritbot-net gateway or kube-system DNS.
+              condition: >
+                outbound and
+                burritbot_guarded_pod and
+                k8s.pod.label.app.kubernetes.io/name = "burritbot" and
+                not fd.sip in (burritbot_net_ips)
+              output: >
+                Guarded BurritBot tried to reach non-burritbot-net endpoint
+                (pod=%k8s.pod.name target=%fd.name)
+              priority: WARNING
+              tags: [burritbot, the-net, egress]
+
+            - rule: Burritbot Guarded Pod Sensitive Mount
+              desc: >
+                A guarded pod started with a sensitive hostPath mount (docker.sock,
+                /etc/kubernetes, /var/run). Guarded workloads must not see the host.
+              condition: >
+                container and
+                burritbot_guarded_pod and
+                container.mount.source in (/var/run/docker.sock, /etc/kubernetes, /var/run/containerd/containerd.sock)
+              output: >
+                Guarded burritbot pod has sensitive host mount
+                (pod=%k8s.pod.name mount=%container.mount.source)
+              priority: CRITICAL
+              tags: [burritbot, the-net, hostpath, guarded]
+        tolerations:
+          - effect: NoSchedule
+            operator: Exists
+        resources:
+          requests:
+            cpu: 100m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: security
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
