@@ -66,3 +66,11 @@ metadata:
   labels:
     burritbot.io/layer: the-web
     app.kubernetes.io/part-of: burritbot
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: external-secrets
+  labels:
+    burritbot.io/layer: the-web
+    app.kubernetes.io/part-of: burritbot

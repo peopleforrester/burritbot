@@ -87,8 +87,8 @@ commit.
 - Phase 7: 7 passed
 - Phase 8: 5 passed
 - Critical-fix series: 21 passed
-- Phase B (EKS-adapt) — B1 cert-manager: 7 passed (collected count is 89)
-- **Total: 89 static tests green. Live tests skip cleanly when
+- Phase B (EKS-adapt) — B1 cert-manager (7) + B2 external-secrets (7)
+- **Total: 97 static tests green. Live tests skip cleanly when
   kubeconfig is absent — no mocks, no fallbacks.** Drift in this
   number is asserted against `pytest --collect-only -m static` by the
   Phase A6 test.
