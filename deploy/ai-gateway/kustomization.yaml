@@ -1,13 +1,13 @@
 # ABOUTME: ArgoCD sync target for The Net — Envoy AI Gateway custom resources.
-# ABOUTME: NeMo Guardrails + LLM Guard need Deployment manifests (TODO below) to be added here.
+# ABOUTME: NeMo Guardrails + LLM Guard Deployment manifests are Phase C scope (greenfield).
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
   - ../../ai-gateway/envoy/gateway.yaml
 
-# TODO(critical-fixes-plan): ai-gateway/nemo-guardrails/config.yaml and
-# ai-gateway/llm-guard/config.yaml are application config files — they
-# need to be wrapped in ConfigMaps and consumed by Deployment manifests
-# (also missing) before they can be added to `resources:`. Tracked as a
-# follow-up — out of scope for the critical-fixes pass.
+# Note: ai-gateway/nemo-guardrails/config.yaml and ai-gateway/llm-guard/config.yaml
+# still need ConfigMap wrapping plus Deployment specs. The EKS reference has no
+# NeMo / LLM Guard, so this work is genuinely greenfield (Phase C — see
+# docs/PHASE-B-EKS-ADAPT-PLAN.md "Out of scope" section). Add their manifests
+# here once the Phase C work lands.

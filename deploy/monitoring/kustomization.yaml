@@ -1,12 +1,14 @@
-# ABOUTME: ArgoCD sync target for The Eyes — kube-prometheus-stack, OTel Collector, dashboards.
-# ABOUTME: Stub: deployable manifests for these components do not yet exist in the repo.
+# ABOUTME: ArgoCD sync target for The Eyes — Grafana ExternalSecret + dashboard ConfigMaps.
+# ABOUTME: Helm chart installs (prometheus, otel-collector, loki, tempo, promtail) ship as their own Applications.
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-resources: []
+resources:
+  - ../../security/eso/grafana-admin-external-secret.yaml
 
-# TODO(critical-fixes-plan): observability/ ships config files only — no
-# Deployment for the OTel Collector, no kube-prometheus-stack helm release,
-# no Grafana dashboard ConfigMaps. Each needs its own manifest before it
-# can be referenced here. Tracked as a follow-up — out of scope for the
-# critical-fixes pass.
+# Note: kube-prometheus-stack, otel-collector, loki, tempo, promtail are not
+# referenced here — they ship as standalone ArgoCD Applications under
+# gitops/apps/ (B3, B4, B6) and are picked up by the recursive root app-of-apps.
+# This wrapper is for namespace-scoped resources that complement those charts:
+# ExternalSecrets, ConfigMap-wrapped Grafana dashboards (TODO Phase C),
+# PodMonitor/ServiceMonitor extras (TODO Phase C).
