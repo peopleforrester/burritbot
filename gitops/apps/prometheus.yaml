@@ -1,0 +1,160 @@
+# ABOUTME: ArgoCD Application for kube-prometheus-stack — Prometheus + Grafana + Alertmanager.
+# ABOUTME: Adapted from kubeauto-ai-day (EKS) — ALB ingress dropped; idp-* alerts renamed burritbot-*.
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: prometheus
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  labels:
+    burritbot.io/layer: the-eyes
+    app.kubernetes.io/part-of: burritbot
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    chart: kube-prometheus-stack
+    repoURL: https://prometheus-community.github.io/helm-charts
+    targetRevision: "82.1.0"
+    helm:
+      valuesObject:
+        prometheus:
+          prometheusSpec:
+            # Remote-write receiver lets OTel Collector push metrics in.
+            enableRemoteWriteReceiver: true
+            retention: 24h
+            resources:
+              requests:
+                cpu: 200m
+                memory: 512Mi
+              limits:
+                cpu: 1000m
+                memory: 2Gi
+            serviceMonitorSelectorNilUsesHelmValues: false
+            podMonitorSelectorNilUsesHelmValues: false
+            ruleSelectorNilUsesHelmValues: false
+          thanosService:
+            enabled: false
+        grafana:
+          # Admin credentials are sourced from a Secret synced by ESO.
+          # The matching ExternalSecret lives at
+          # security/eso/grafana-admin-external-secret.yaml and pulls
+          # from GCP Secret Manager key `burritbot-grafana-admin`.
+          admin:
+            existingSecret: grafana-admin-credentials
+            userKey: admin-user
+            passwordKey: admin-password
+          sidecar:
+            dashboards:
+              enabled: true
+              label: grafana_dashboard
+              labelValue: "1"
+              searchNamespace: ALL
+            datasources:
+              enabled: true
+          additionalDataSources:
+            - name: Tempo
+              type: tempo
+              url: http://tempo.monitoring:3100
+              access: proxy
+              isDefault: false
+              jsonData:
+                tracesToLogsV2:
+                  datasourceUid: loki
+                  filterByTraceID: true
+                tracesToMetrics:
+                  datasourceUid: prometheus
+                nodeGraph:
+                  enabled: true
+                serviceMap:
+                  datasourceUid: prometheus
+            - name: Loki
+              type: loki
+              uid: loki
+              url: http://loki.monitoring:3100
+              access: proxy
+              isDefault: false
+              jsonData:
+                derivedFields:
+                  - datasourceUid: tempo
+                    matcherRegex: "traceID=(\\w+)"
+                    name: TraceID
+                    url: "$${__value.raw}"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+          # Ingress deliberately disabled. For demo access use
+          #   kubectl port-forward -n monitoring svc/prometheus-grafana 3000:80
+          # A GKE Gateway / HTTPRoute can be added later if a public
+          # hostname is needed; see docs/PHASE-B-EKS-ADAPT-PLAN.md.
+          ingress:
+            enabled: false
+        alertmanager:
+          alertmanagerSpec:
+            resources:
+              requests:
+                cpu: 50m
+                memory: 64Mi
+              limits:
+                cpu: 200m
+                memory: 256Mi
+        nodeExporter:
+          enabled: true
+        kubeStateMetrics:
+          enabled: true
+        additionalPrometheusRulesMap:
+          burritbot-alerts:
+            groups:
+              - name: burritbot-node-alerts
+                rules:
+                  - alert: NodeNotReady
+                    expr: kube_node_status_condition{condition="Ready",status="true"} == 0
+                    for: 5m
+                    labels:
+                      severity: critical
+                    annotations:
+                      summary: "Node {{ $labels.node }} is not ready"
+                      description: "Node {{ $labels.node }} has been not ready for 5 minutes."
+                  - alert: PodCrashLoop
+                    expr: increase(kube_pod_container_status_restarts_total[10m]) > 3
+                    for: 0m
+                    labels:
+                      severity: warning
+                    annotations:
+                      summary: "Pod {{ $labels.namespace }}/{{ $labels.pod }} is crash looping"
+                      description: "Pod {{ $labels.pod }} in {{ $labels.namespace }} has restarted more than 3 times in 10 minutes."
+              - name: burritbot-app-alerts
+                rules:
+                  - alert: ArgoCDAppDegraded
+                    expr: argocd_app_info{health_status="Degraded"} == 1
+                    for: 5m
+                    labels:
+                      severity: warning
+                    annotations:
+                      summary: "ArgoCD app {{ $labels.name }} is degraded"
+                      description: "ArgoCD application {{ $labels.name }} has been degraded for 5 minutes."
+                  - alert: FalcoCriticalAlert
+                    expr: increase(falco_events{priority="Critical"}[5m]) > 0
+                    for: 0m
+                    labels:
+                      severity: critical
+                    annotations:
+                      summary: "Falco critical alert detected"
+                      description: "Falco detected a critical severity event in the last 5 minutes."
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: monitoring
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
+      - ServerSideApply=true
