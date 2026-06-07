@@ -1,20 +1,22 @@
-# burritbot — KubeCon NA 2026 Demo Platform
-# "Can Your Chatbot Run kubectl? Guardrails for LLMs on Kubernetes"
+# burritbot — A Reusable AI-Guardrails Demo Platform for Kubernetes
 
 ## What This Is
-A GKE cluster running a complete AI guardrails demo for a KubeCon talk.
-Two modes: UNGUARDED (chatbot with no protections) and GUARDED (full burritbot stack active).
-The audience interacts with both via a web frontend and watches the difference on Grafana in real-time.
+A GKE cluster running a complete AI guardrails demo. Two modes:
+UNGUARDED (chatbot with no protections) and GUARDED (full burritbot
+guardrails stack active). The audience interacts with both via a web
+frontend and watches the difference on Grafana in real time.
 
-Talk: **"Can Your Chatbot Run kubectl? Guardrails for LLMs on Kubernetes"** —
-KubeCon NA 2026, Salt Lake City. Co-presenters: Whitney Lee and Michael Forrester.
+The platform is event-neutral. Talk-specific delivery artifacts (CFP,
+runbook, scorecard, build plan) live under `presentations/<event>/`
+so the same platform can be re-presented at different conferences
+without rewrites. Current deliveries are listed in `README.md`.
 
 **Canonical Act 1 prompts** are lighthearted off-topic asks that the audience
 submits from their phones: *teach me some salsa dance moves*, *how do I throw
 a hot dog party*, *recommend karaoke songs for a wedding*. The unguarded bot
 writes the choreography; the guarded bot politely redirects to the menu. The
 harder demonstrations (prompt injection, jailbreak attempts, data extraction)
-are driven by the speakers, never crowdsourced from the audience.
+are driven by the presenters, never crowdsourced from the audience.
 
 ## Architecture Metaphor — The Ogre-Faced Spider
 The ogre-faced spider does not build a passive web. It holds a net between
@@ -53,11 +55,13 @@ for the per-file copy/adapt/extend/ignore map.
 ## How To Work
 1. Read this file completely before writing any code.
 2. Read `PROJECT_STATE.md` at session start to reconcile with actual repo state.
-3. Read `docs/BUILD-INSTRUCTIONS.md` for the authoritative phase spec.
-4. Read `docs/PLAN.md` for the execution plan and open decisions.
-5. Work in phases. Complete each phase's tests before moving to the next.
-6. Everything after Phase 2 is deployed as an ArgoCD Application. No `kubectl apply`.
-7. No secrets in Git. Use GCP Secret Manager + External Secrets Operator.
+3. For event-day work, read the active talk's spec under
+   `presentations/<event>/docs/BUILD-INSTRUCTIONS.md` (and `PLAN.md`,
+   `RUNBOOK.md`, `SCORECARD.md`). For platform work, those files do not
+   need to be loaded.
+4. Work in phases. Complete each phase's tests before moving to the next.
+5. Everything after Phase 2 is deployed as an ArgoCD Application. No `kubectl apply`.
+6. No secrets in Git. Use GCP Secret Manager + External Secrets Operator.
 8. Commit after each working component, not after each file.
 9. When you hit a wall on GCP-specific config, search the docs. Do not guess IAM bindings.
 
@@ -153,5 +157,6 @@ fail explicitly rather than silently fall back to defaults.
   completion, pre-commit).
 - Run each phase as a separate Claude Code session to avoid context window
   overflow.
-- The exact per-phase session commands are in `docs/BUILD-INSTRUCTIONS.md` §
+- The exact per-phase session commands are in the active talk's
+  `presentations/<event>/docs/BUILD-INSTRUCTIONS.md` §
   "Claude Code Execution Strategy".

@@ -27,13 +27,13 @@ deferred to a session with GCP auth and cluster access.
 - Commit G (`43b4db3`) — narrative shift to a lighthearted Act 1.
 - Critical-fix series (this session) — see "Critical Fixes" below.
 
-## Talk Context
-- Talk: "Can Your Chatbot Run kubectl? Guardrails for LLMs on Kubernetes"
-- Venue: KubeCon NA 2026, Salt Lake City
-- Speakers: Whitney Lee and Michael Forrester
-- Format: Two-act live demo (unguarded then guarded BurritBot on GKE)
+## Platform Context
 - Platform name: **burritbot** (ogre-faced spider — The Eyes + The Net)
 - Chatbot name: **BurritBot** (Chipotle viral chatbot incident as narrative hook)
+- Format: Two-act live demo (unguarded then guarded BurritBot on GKE)
+- Talk-specific delivery artifacts (CFP, runbook, scorecard, build plan)
+  live under `presentations/<event>/`. See `README.md` for the current
+  active deliveries.
 
 ## Critical Fixes (this session)
 Plan: `docs/CRITICAL-FIXES-PLAN.md`. Each phase landed a failing test
@@ -56,8 +56,8 @@ commit.
 - [x] GitHub repo: `peopleforrester/burritobot`
 - [x] `kubeauto-ai-day/` subdir kept local-only (gitignored)
 - [x] `CLAUDE.md`, `README.md`, `.gitignore`
-- [x] `docs/BUILD-INSTRUCTIONS.md` (verbatim spec + preamble)
-- [x] `docs/PLAN.md`, `docs/KUBEAUTO-REUSE-MAP.md`, `docs/CRITICAL-FIXES-PLAN.md`
+- [x] `presentations/kubecon-na-2026/docs/BUILD-INSTRUCTIONS.md` (verbatim spec + preamble)
+- [x] `presentations/kubecon-na-2026/docs/PLAN.md`, `docs/KUBEAUTO-REUSE-MAP.md`, `docs/CRITICAL-FIXES-PLAN.md`
 - [x] `PROJECT_STATE.md` (this file)
 
 ### Offline Build (Tasks #7 – #18)
@@ -151,8 +151,10 @@ them up without re-discovering them.
 Once a GCP project is confirmed and Terraform is installed:
 
 ```bash
-claude -p "Read CLAUDE.md, PROJECT_STATE.md, docs/BUILD-INSTRUCTIONS.md, \
-docs/PLAN.md, and docs/CRITICAL-FIXES-PLAN.md. Validate Phase 1: GKE \
+claude -p "Read CLAUDE.md, PROJECT_STATE.md, \
+presentations/kubecon-na-2026/docs/BUILD-INSTRUCTIONS.md, \
+presentations/kubecon-na-2026/docs/PLAN.md, \
+and docs/CRITICAL-FIXES-PLAN.md. Validate Phase 1: GKE \
 Foundation. Run terraform validate, terraform plan, then terraform apply. \
 Run tests/test_phase_01_foundation.py with the live marker." --max-iterations 20
 ```
@@ -162,8 +164,8 @@ workflow, promoting YELLOW scorecard rows to GREEN as each live check
 passes. **Do not green-wash the scorecard.**
 
 ## Demo-Day Artifacts (Phase 8)
-- `docs/RUNBOOK.md` — Pre-flight / Act 1 / Cast the Net / Act 2 / Teardown / Rollback
-- `docs/SCORECARD.md` — honest per-component status, YELLOW where live
+- `presentations/kubecon-na-2026/docs/RUNBOOK.md` — Pre-flight / Act 1 / Cast the Net / Act 2 / Teardown / Rollback
+- `presentations/kubecon-na-2026/docs/SCORECARD.md` — honest per-component status, YELLOW where live
   validation has not happened yet
 - `docs/CRITICAL-FIXES-PLAN.md` — the senior-review repair plan
 - `scripts/teardown.sh` — `terraform destroy` with a two-step confirmation
@@ -176,10 +178,10 @@ passes. **Do not green-wash the scorecard.**
 
 ## Key References
 - `CLAUDE.md` — project Claude Code instructions
-- `docs/BUILD-INSTRUCTIONS.md` — authoritative burritbot spec
+- `presentations/<event>/docs/BUILD-INSTRUCTIONS.md` — talk-specific burritbot spec
 - `docs/CRITICAL-FIXES-PLAN.md` — senior-review repair plan (this session)
-- `docs/RUNBOOK.md` — demo-day operational runbook
-- `docs/SCORECARD.md` — per-component scorecard
+- `presentations/<event>/docs/RUNBOOK.md` — demo-day operational runbook
+- `presentations/<event>/docs/SCORECARD.md` — per-component scorecard
 - `spec/BUILD-SPEC.md` — build-time pointer and completion protocol
 - `spec/phases/phase-0[1-8]-*.md` — per-phase specs with completion promises
 - Local reuse source: `~/repos/kubecon/.../kubeauto-ai-day/` (local-only)
