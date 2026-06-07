@@ -1,7 +1,7 @@
 [project]
 name = "burritbot"
 version = "0.1.0"
-description = "burritbot — KubeCon NA 2026 demo platform for 'Can Your Chatbot Run kubectl? Guardrails for LLMs on Kubernetes'"
+description = "burritbot — a reusable Kubernetes platform for live AI-guardrails demos (Envoy AI Gateway + NeMo Guardrails + LLM Guard + Kyverno + Falco + OTel)."
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = []

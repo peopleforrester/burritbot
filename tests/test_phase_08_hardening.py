@@ -12,8 +12,9 @@ from conftest import PROJECT_ROOT
 
 pytestmark = pytest.mark.phase8
 
-RUNBOOK = PROJECT_ROOT / "docs" / "RUNBOOK.md"
-SCORECARD = PROJECT_ROOT / "docs" / "SCORECARD.md"
+PRESENTATION_DOCS = PROJECT_ROOT / "presentations" / "kubecon-na-2026" / "docs"
+RUNBOOK = PRESENTATION_DOCS / "RUNBOOK.md"
+SCORECARD = PRESENTATION_DOCS / "SCORECARD.md"
 TEARDOWN_SCRIPT = PROJECT_ROOT / "scripts" / "teardown.sh"
 
 REQUIRED_RUNBOOK_SECTIONS = {
@@ -33,8 +34,8 @@ REQUIRED_SCORECARD_HEADERS = {
 
 @pytest.mark.static
 def test_runbook_exists_and_has_all_sections() -> None:
-    """docs/RUNBOOK.md exists and contains the required operational sections."""
-    assert RUNBOOK.exists(), "docs/RUNBOOK.md is missing"
+    """RUNBOOK.md (under the active talk folder) has the required operational sections."""
+    assert RUNBOOK.exists(), f"RUNBOOK.md missing at {RUNBOOK}"
     text = RUNBOOK.read_text(encoding="utf-8")
     missing = [s for s in REQUIRED_RUNBOOK_SECTIONS if s not in text]
     assert not missing, f"RUNBOOK.md missing sections: {missing}"
@@ -42,8 +43,8 @@ def test_runbook_exists_and_has_all_sections() -> None:
 
 @pytest.mark.static
 def test_scorecard_exists_with_cncf_columns() -> None:
-    """docs/SCORECARD.md exists and enumerates CNCF projects by burritbot layer."""
-    assert SCORECARD.exists(), "docs/SCORECARD.md is missing"
+    """SCORECARD.md (under the active talk folder) enumerates CNCF projects by burritbot layer."""
+    assert SCORECARD.exists(), f"SCORECARD.md missing at {SCORECARD}"
     text = SCORECARD.read_text(encoding="utf-8")
     missing = [h for h in REQUIRED_SCORECARD_HEADERS if h not in text]
     assert not missing, f"SCORECARD.md missing headers: {missing}"

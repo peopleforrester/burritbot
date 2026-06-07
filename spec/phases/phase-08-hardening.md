@@ -2,14 +2,15 @@
 
 **Goal:** Everything the operator needs on stage — runbook, scorecard,
 teardown script, rehearsal checklist, and the final honest
-self-assessment before KubeCon NA 2026.
+self-assessment before any given demo day. Talk-specific runbook /
+scorecard artifacts live under `presentations/<event>/`.
 
 **Inputs:** Phases 1-7 complete. All tests green. Live rehearsal has
 been run at least once end-to-end.
 
 **Outputs:**
 
-- `docs/RUNBOOK.md` — must contain sections:
+- `presentations/<event>/docs/RUNBOOK.md` — must contain sections:
   - **Pre-flight** (cluster context, secret presence, Grafana board
     sanity check, Envoy route initial state)
   - **Act 1** (unguarded BurritBot rehearsal script, attack prompts,
@@ -19,7 +20,7 @@ been run at least once end-to-end.
     expected refusals)
   - **Teardown** (how to take the cluster down after the talk)
   - **Rollback** (what to do if `cast-net.sh cast` fails on stage)
-- `docs/SCORECARD.md` — must mention "CNCF Project", "Layer", and each
+- `presentations/<event>/docs/SCORECARD.md` — must mention "CNCF Project", "Layer", and each
   of `The Eyes`, `The Net`, `The Web`; one row per component with
   honest notes
 - `scripts/teardown.sh` — executable, two ABOUTME lines, calls
@@ -45,7 +46,7 @@ Static only — Phase 8 has no new live infrastructure:
 - Scorecard is honest: red cells on components that almost worked are
   more useful to the audience than green cells that lie.
 - Teardown is `terraform destroy`, not `gcloud projects delete`. The
-  project may be reused for the next KubeCon.
+  project may be reused for the next event.
 
 **Known Risk:** The scorecard will tempt you to mark everything green.
 Resist. Write what happened in rehearsal.

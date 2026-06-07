@@ -29,7 +29,7 @@ fails if `from vertexai.generative_models` appears anywhere in
 The training data will suggest `gemini-1.5-flash`. Earlier drafts of
 this spec used `gemini-2.5-flash`. **Do not regress.**
 
-| Model | Status during KubeCon NA 2026 (2026-11) |
+| Model | Status as of late 2026 (Nov) |
 |-------|----------------------------------------|
 | `gemini-1.5-flash` | Unsupported, 404 on call |
 | `gemini-2.0-flash` | Already retired |

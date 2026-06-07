@@ -7,7 +7,7 @@ app:
   log_level: INFO
 
 cache:
-  # Redis is optional in the demo; in-memory is fine at kubecon rehearsal scale.
+  # Redis is optional in the demo; in-memory is fine at rehearsal scale.
   type: memory
   ttl_seconds: 300
 

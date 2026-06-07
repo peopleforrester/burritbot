@@ -1,6 +1,6 @@
 # Phase B — Adapt EKS Reference Manifests to GKE
 # Source: docs/KUBEAUTO-REUSE-MAP.md (per-file decisions already made).
-# Reference repo: ~/repos/_archive/events/kubeauto-ai-day/ (KubeCon EU 2026, delivered live).
+# Reference repo: ~/repos/_archive/events/kubeauto-ai-day/ (a prior live-delivered EKS demo platform).
 # Strict TDD, phase by phase, no timelines.
 
 ## Verification Method
@@ -10,7 +10,7 @@ static test that asserts the cloud-swap was complete (no AWS strings
 remain, GCP equivalents are present, namespaces match the burritbot
 layout). The reference repo is treated as authoritative for everything
 *except* cloud-provider specifics — its 27/27 components were live-
-tested at KubeCon EU 2026, so the structural choices are already
+tested in a prior delivery, so the structural choices are already
 proven.
 
 ## Why this exists

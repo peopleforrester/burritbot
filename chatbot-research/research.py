@@ -1,5 +1,5 @@
 # ABOUTME: Playwright-based research script that visits public chatbot widgets with lighthearted prompts.
-# ABOUTME: Captures before/after screenshots and response text for the KubeCon talk submission.
+# ABOUTME: Captures before/after screenshots and response text for talk-submission collateral.
 
 """Chatbot Dance Moves Research — screenshot capture for the CFP.
 

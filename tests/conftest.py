@@ -22,7 +22,7 @@ CLUSTER_NAME = os.environ.get("CLUSTER_NAME", "burritbot")
 
 # Gemini model pin — Gemini 3 Pro is the GA default for this demo.
 # Do not regress to 1.5 (unsupported), 2.0 (retired), or 2.5 (retires
-# 2026-10-16 — before KubeCon NA 2026).
+# 2026-10-16 — before any late-2026 demo day).
 GEMINI_MODEL = os.environ.get("MODEL_NAME", "gemini-3-pro")
 
 # Namespaces the platform must provision. Note `burritbot-net` (not

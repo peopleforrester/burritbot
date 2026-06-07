@@ -42,7 +42,7 @@ def test_burritbot_app_pins_gemini_3_pro() -> None:
         f"app.py does not reference {GEMINI_MODEL}"
     )
     # Forbid every non-GA or soon-retiring Gemini Flash variant. 2.5 Flash
-    # retires 2026-10-16, roughly four weeks before KubeCon NA 2026 — never
+    # retires 2026-10-16, weeks before any late-2026 demo day — never
     # bet a live demo on a model past its retirement date.
     forbidden = [
         "gemini-1.5-flash",
@@ -52,7 +52,7 @@ def test_burritbot_app_pins_gemini_3_pro() -> None:
     ]
     for bad in forbidden:
         assert bad not in text, (
-            f"app.py still references {bad} (retired or retiring before KubeCon NA 2026)"
+            f"app.py still references {bad} (retired or retiring before late 2026)"
         )
 
 

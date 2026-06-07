@@ -8,15 +8,15 @@ locally at
 and is **gitignored** here — nothing is vendored; every reuse is a fresh
 read + copy during the relevant phase session.
 
-The EKS reference was delivered as the KubeCon EU 2026 talk (2026-03-23,
-27/27 components, 59 live tests), so every manifest below has been
+The EKS reference was delivered as a live conference talk in 2026-03
+(27/27 components, 59 live tests), so every manifest below has been
 verified against a real cluster. Adaptation is the work; greenfield
 authoring is not.
 
 **Naming conventions in this repo:**
 - Guardrails namespace is **`burritbot-net`** (not `guardrails`).
 - AI workload labels / annotations use the **`burritbot.io/*`** prefix
-  (not `ai.kubecon.demo/*`).
+  (not the prior demo's `ai.*.demo/*`).
 - Guardrails sidecar containers are named **`burritbot-*`** (enforced by
   Kyverno `require-guardrails-sidecar.yaml`).
 - Live toggle script is **`cast-net.sh`** (not `toggle-guardrails.sh`).

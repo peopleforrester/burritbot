@@ -18,7 +18,7 @@ logger = logging.getLogger("burritbot")
 logging.basicConfig(level=logging.INFO)
 
 # Non-negotiable model pin — see spec/phases/phase-06-burritbot.md.
-# Gemini 2.5 Flash/Pro retire 2026-10-16 (before KubeCon NA 2026); 2.0 is
+# Gemini 2.5 Flash/Pro retire 2026-10-16 (before any late-2026 demo day); 2.0 is
 # already retired; 1.5 is unsupported; 3 Flash is preview-tier. Only 3 Pro
 # is a safe GA bet for a live demo in November 2026.
 MODEL_NAME: str = os.environ.get("MODEL_NAME", "gemini-3-pro")
