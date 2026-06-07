@@ -88,7 +88,8 @@ commit.
 - Phase 8: 5 passed
 - Critical-fix series: 21 passed
 - Phase B (EKS-adapt) — B1 cert-manager (7) + B2 external-secrets (7) + B3 prometheus (6) + B4 otel-collector (6) + B5 falco (8) + B6 loki/tempo/promtail (9) + B7 kyverno (4) + B8 deploy wiring (4) — **complete**
-- **Total: 141 static tests green. Live tests skip cleanly when
+- Phase G (Genericize) — G1 move talk artifacts + G2 scrub platform refs + G3 rewrite README/instructions/state + G4 GitHub description + G5 leak test (1) — **complete**
+- **Total: 142 static tests green. Live tests skip cleanly when
   kubeconfig is absent — no mocks, no fallbacks.** Drift in this
   number is asserted against `pytest --collect-only -m static` by the
   Phase A6 test.
@@ -184,5 +185,5 @@ passes. **Do not green-wash the scorecard.**
 - `presentations/<event>/docs/SCORECARD.md` — per-component scorecard
 - `spec/BUILD-SPEC.md` — build-time pointer and completion protocol
 - `spec/phases/phase-0[1-8]-*.md` — per-phase specs with completion promises
-- Local reuse source: `~/repos/kubecon/.../kubeauto-ai-day/` (local-only)
+- Local reuse source: `~/repos/_archive/events/kubeauto-ai-day/` (local-only)
 - Remote reuse source: https://github.com/peopleforrester/kubeauto-ai-day
