@@ -17,7 +17,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/REPLACE_WITH_OWNER/burritbot.git
+    repoURL: https://github.com/REPLACE_WITH_OWNER/burritobot.git
     targetRevision: main
     path: security/cert-manager
     directory:

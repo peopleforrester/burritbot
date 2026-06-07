@@ -6,7 +6,7 @@
 **CFP Deadline:** May 31, 2026 at 11:59pm MT
 **Submission Platform:** sessionize.com/kubecon-cloudnativecon-north-america-2026
 **Speakers:** Whitney Lee and Michael Forrester
-**Demo Repo:** github.com/peopleforrester/burritbot
+**Demo Repo:** github.com/peopleforrester/burritobot
 
 ---
 

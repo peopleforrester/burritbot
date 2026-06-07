@@ -53,7 +53,7 @@ commit.
 
 ### Phase 0 — Bootstrap
 - [x] Git repo initialized (`main` + `staging` branches pushed to origin)
-- [x] GitHub repo: `peopleforrester/burritbot`
+- [x] GitHub repo: `peopleforrester/burritobot`
 - [x] `kubeauto-ai-day/` subdir kept local-only (gitignored)
 - [x] `CLAUDE.md`, `README.md`, `.gitignore`
 - [x] `docs/BUILD-INSTRUCTIONS.md` (verbatim spec + preamble)
@@ -171,7 +171,7 @@ passes. **Do not green-wash the scorecard.**
 
 ## Branch & Test Status
 - **Branch**: `staging` (default working branch)
-- **Remote**: `origin → https://github.com/peopleforrester/burritbot`
+- **Remote**: `origin → https://github.com/peopleforrester/burritobot`
 - **Static tests**: 80 passing, 0 failing, live tests skip when kubeconfig absent
 
 ## Key References
